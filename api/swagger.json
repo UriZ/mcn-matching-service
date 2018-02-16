@@ -21,6 +21,13 @@
             "description": "The FB user id derived from FB access token",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "fbToken",
+            "in": "query",
+            "description": "The FB access token",
+            "required": true,
+            "type": "string"
           }
         ],
         "responses": {

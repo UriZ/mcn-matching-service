@@ -1,51 +1,62 @@
 'use strict';
-
+let requestPromise = require ('request-promise');
 
 
 /**
- * create a new user in the db
+ *  get the list of friends of a given user
+
+ * @param userId
+ * @param fbAccessToken
+ */
+let getFBFriends = (userId, fbAccessToken)=>{
+
+    return new Promise((resolve, reject)=>{
+
+        let options = {
+            method: 'get',
+            uri: process.env.FB_GRAPH_API +  +userId +"/" + "friends?" + "access_token="+ fbAccessToken,
+            headers: {
+                'User-Agent': 'Request-Promise'
+            },
+            json: true // Automatically parses the JSON string in the response
+        };
+
+        requestPromise(options)
+            .then(function (result) {
+                console.log("user's friends list recieved");
+
+                 resolve(result);
+            })
+            .catch(function (err) {
+
+                console.log("error getting user's friends list" +  err);
+                reject(err);
+            });
+    });
+
+
+
+
+
+
+
+}
+
+/**
+ * find a match for a given user.
  * @param req
  * @param res
  */
 module.exports.findMatchForUser = function findMatchForUser (req, res) {
 
 
-    // // get id from request
-    // const fbUserID = req.swagger.params.fb_user_id.value;
-    //
-    // let record = createUserData(fbUserID,userName, email);
-    //
-    // // db url
-    // const url = process.env.DB_URL;
-    //
-    // // Database Name
-    // const dbName = process.env.DB_NAME;
-    //
-    //
-    // // connect to the server
-    // MongoClient.connect(url, function(err, client) {
-    //     assert.equal(null, err);
-    //     console.log("Connected to db");
-    //
-    //     const db = client.db(dbName);
-    //
-    //     insertUserToDB(db, function(err,result) {
-    //
-    //
-    //         if (err){
-    //             res.status(500).send(err);
-    //         }
-    //         else{
-    //             console.log("document inserted");
-    //             console.log(result.ops);
-    //             client.close();
-    //             res.send(200);
-    //         }
-    //
-    //     }, record);
-    // });
+    getFBFriends(req.swagger.params.fb_user_id.value, req.swagger.params.fbToken.value).then((result)=>{
 
-    res.send("ok");
+        res.status(200).send(result);
+
+    }).catch((error)=>{
+        res.status(500).send(error);
+    });
 };
 
 
