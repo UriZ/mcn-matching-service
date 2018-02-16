@@ -1,0 +1,53 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "MCN matching service API",
+    "description": "matching service api",
+    "version": "1.0"
+  },
+  "produces": ["application/json"],
+  "basePath": "/api",
+  "paths": {
+    "/match": {
+      "get": {
+        "x-swagger-router-controller": "match",
+        "operationId": "findMatchForUser",
+        "tags": ["/match"],
+        "description": "get a match for a specific user",
+        "parameters": [
+          {
+            "name": "fb_user_id",
+            "in": "query",
+            "description": "The FB user id derived from FB access token",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Invalid request.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "200": {
+            "description": "Successful request."
+          }
+        }
+      }
+    }
+  },
+
+
+  "definitions": {
+
+    "Error": {
+      "properties": {
+        "errorMessage": {
+          "type": "string"
+        }
+      },
+      "required": ["errorMessage"]
+    }
+  }
+}
