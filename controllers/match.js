@@ -16,7 +16,7 @@ let getFBFriends = (userId, fbAccessToken)=>{
             method: 'get',
             uri: process.env.FB_GRAPH_API +  +userId +"/" + "friends?" + "access_token="+ fbAccessToken,
             headers: {
-                'User-Agent': 'Request-Promise'
+                'User-Agent': 'Request-Promise',
             },
             json: true // Automatically parses the JSON string in the response
         };
@@ -35,6 +35,39 @@ let getFBFriends = (userId, fbAccessToken)=>{
     });
 }
 
+
+/**
+ * find mutual friends for the user with the access token and the user with the user id (both must be using the app)
+ * @param userId
+ * @param fbAccessToken
+ * @returns {an array of mutual friends }
+ */
+let getMutualFriends = (userId, fbAccessToken)=>{
+
+    return new Promise((resolve, reject)=>{
+
+        let options = {
+            method: 'get',
+
+            uri: process.env.FB_GRAPH_API +  +userId + "?fields=context.fields(all_mutual_friends.limit(100))&access_token=" + fbAccessToken,
+            headers: {
+                'User-Agent': 'Request-Promise',
+            },
+            json: true // Automatically parses the JSON string in the response
+        };
+
+        requestPromise(options)
+            .then(function (result) {
+                console.log("mutual friends list received");
+                resolve(result.context.all_mutual_friends.data);
+            })
+            .catch(function (err) {
+
+                console.log("error getting mutual friends list" +  err);
+                reject(err);
+            });
+    });
+}
 
 /**
  * get the basic match from db - all records that match the preferences
@@ -80,6 +113,13 @@ module.exports.findMatchForUser = function findMatchForUser (req, res) {
     // get fb id and token from request
     const id = req.swagger.params.fb_user_id.value;
     const token  = req.swagger.params.fbToken.value;
+
+
+    // getMutualFriends(id, token).then((result)=>{
+    //     // console.log(response);
+    //     console.log(result);
+    //     res.send(result);
+    // })
 
     // get fb friends and basic match from db
     Promise.all([basicMatch(),getFBFriends(id, token)]).then((results)=>{
