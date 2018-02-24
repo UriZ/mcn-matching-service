@@ -95,14 +95,7 @@ let findPotentialMatchesForUser = (userId) => {
                 console.log("success getting user preferences");
                 console.log(preferences);
 
-                // build an index using preferences
-                let index = {};
-
-                // look for the symmetrical operation
-                index['preferences.operation'] = preferences.operation == "buy" ? "sell" : "buy";
-                index['preferences.currency'] = preferences.currency;
-                index['preferences.amount'] = preferences.amount;
-                return getBasicMatchByPref(index);
+                 return getBasicMatchByPref(buildPrefIndex(preferences));
             })
             .then((users) => {
                 resolve(users);
@@ -115,7 +108,18 @@ let findPotentialMatchesForUser = (userId) => {
     });
 }
 
+let buildPrefIndex = (preferences)=>{
 
+    // build an index using preferences
+    let index = {};
+
+    // look for the symmetrical operation
+    index['preferences.operation'] = preferences.operation == "buy" ? "sell" : "buy";
+    index['preferences.currency'] = preferences.currency;
+    index['preferences.amount'] = preferences.amount;
+
+    return index;
+}
 /**
  * get match from db according to preferences
  * @param preferences
