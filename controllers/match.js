@@ -1,6 +1,6 @@
 'use strict';
 let requestPromise = require ('request-promise');
-
+const MongoClient = require('mongodb').MongoClient;
 
 /**
  *  get the list of friends of a given user
@@ -69,39 +69,97 @@ let getMutualFriends = (targetUserId, sessionUserAccessToken)=>{
     });
 }
 
+
 /**
- * get the basic match from db - all records that match the preferences
+ * get potential matches from db according to user pref
+ * @param userId
  * @returns {Promise<any>}
  */
-let basicMatch = ()=>{
+let findPotentialMatchesForUser = (userId) => {
 
-    return new Promise((resolve, reject)=>{
+    return new Promise((resolve, reject) => {
 
+        // get preferences of user
         // options for user service call
         let options = {
             method: 'get',
-            uri: process.env.USER_SERVICE_URL,
+            uri: process.env.USER_SERVICE_URL + "/" + userId + "/preferences",
             headers: {
                 'User-Agent': 'Request-Promise'
             },
             json: true // Automatically parses the JSON string in the response
         };
 
-
         requestPromise(options)
-            .then(function (result) {
-                console.log("success getting users from db");
-                console.log(result);
-                resolve(result);
+            .then(function (preferences) {
+                console.log("success getting user preferences");
+                console.log(preferences);
+
+                // build an index using preferences
+                let index = {};
+
+                // look for the symmetrical operation
+                index['preferences.operation'] = preferences.operation == "buy" ? "sell" : "buy";
+                index['preferences.currency'] = preferences.currency;
+                index['preferences.amount'] = preferences.amount;
+                return getBasicMatchByPref(index);
+            })
+            .then((users) => {
+                resolve(users);
 
             })
             .catch(function (err) {
-                console.log("error getting users  from db " +  err);
+                console.log("error getting users by preferences " + err);
                 reject(err);
             });
     });
-
 }
+
+
+/**
+ * get match from db according to preferences
+ * @param preferences
+ * @returns {Promise<any>}
+ */
+let getBasicMatchByPref = (preferences)=>{
+
+    return new Promise((resolve, reject)=>{
+
+        // users db
+        const url = process.env.DB_URL;
+
+        // Database Name
+        const dbName = process.env.DB_NAME;
+
+        MongoClient.connect(url, function(err, client) {
+
+            if (err){
+                reject(err);
+            }
+
+            console.log("Connected to db");
+
+            const db = client.db(dbName);
+            const collection = db.collection(process.env.USERS_COLLECTION);
+
+            // get all users that match the preferences index
+            collection.find(preferences).toArray((err,items)=>{
+                if (err){
+                    reject(err);
+                }
+                else{
+                    console.log("matched items " + items);
+                    resolve(items);
+                }
+            });
+        });
+    });
+}
+
+
+
+
+
 
 /**
  * find a match for a given user.
@@ -116,7 +174,7 @@ module.exports.findMatchForUser = function findMatchForUser (req, res) {
     const token  = req.swagger.params.fbToken.value;
 
     // get fb friends and basic match from db
-    Promise.all([basicMatch(),getFBFriends(id, token)]).then((results)=>{
+    Promise.all([findPotentialMatchesForUser(id),getFBFriends(id, token)]).then((results)=>{
 
         let potentialMatches = results[0];
 
