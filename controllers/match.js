@@ -59,7 +59,14 @@ let getMutualFriends = (targetUserId, sessionUserAccessToken)=>{
         requestPromise(options)
             .then(function (result) {
                 console.log("mutual friends list received");
-                resolve(result.context.all_mutual_friends.data);
+                if (result.context.all_mutual_friends){
+                    resolve(result.context.all_mutual_friends.data);
+                }
+                else {
+                      console.log("mutual friends list was empty ");
+                      // use an empty array as the mutual friends list
+                    resolve([]);
+                }
             })
             .catch(function (err) {
 
