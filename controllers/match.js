@@ -216,6 +216,7 @@ module.exports.findMatchForUser = function findMatchForUser (req, res) {
         // get all mutual friends arrays
         Promise.all(mutualFriendsCalls).then((results)=>{
 
+            console.log("mutual friend array: " + JSON.stringify(results));
             // filter the results of the basic match to contain only elements in the friends array or with more than 0 mutual friends
             let filteredArr = potentialMatches.filter((element, index, array)=>{
 
