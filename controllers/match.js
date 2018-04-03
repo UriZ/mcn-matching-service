@@ -105,6 +105,7 @@ let findPotentialMatchesForUser = (userId) => {
                  return getBasicMatchByPref(buildPrefIndex(preferences));
             })
             .then((users) => {
+                console.log("found match for user " + userId + ": " + JSON.stringify(users) );
                 resolve(users);
 
             })
