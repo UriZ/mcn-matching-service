@@ -123,7 +123,7 @@ let buildPrefIndex = (preferences)=>{
     // look for the symmetrical operation
     index['preferences.operation'] = preferences.operation == "buy" ? "sell" : "buy";
     index['preferences.currency'] = preferences.currency;
-    index['preferences.amount'] = preferences.amount;
+    // index['preferences.amount'] = preferences.amount;
 
     return index;
 }
