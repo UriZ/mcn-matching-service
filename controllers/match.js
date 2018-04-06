@@ -1,7 +1,7 @@
 'use strict';
 let requestPromise = require ('request-promise');
 const MongoClient = require('mongodb').MongoClient;
-
+let crypto = require('crypto');
 /**
  *  get the list of friends of a given user
 
@@ -35,6 +35,19 @@ let getFBFriends = (userId, fbAccessToken)=>{
     });
 }
 
+/**
+ * generate the app secret proof for secured calls to fb api
+ * @param accessToken
+ * @param appSecret
+ */
+let generateAppSecretProof = (accessToken, appSecret)=>{
+
+        // create the proof from the app secret and token
+        var hmac = crypto.createHmac('sha256', appSecret);
+        hmac.update(accessToken);
+
+        return hmac.digest('hex');
+}
 
 /**
  * find mutual friends for the user with the access token and the user with the user id (both must be using the app)
@@ -44,12 +57,17 @@ let getFBFriends = (userId, fbAccessToken)=>{
  */
 let getMutualFriends = (targetUserId, sessionUserAccessToken)=>{
 
+
+    // create the appsecret_proof for a secured call to fb api
+    let proof = generateAppSecretProof(sessionUserAccessToken,process.env.FB_APP_SECRET);
+
+
     return new Promise((resolve, reject)=>{
 
         let options = {
             method: 'get',
 
-            uri: process.env.FB_GRAPH_API +  +targetUserId + "?fields=context.fields(all_mutual_friends.limit(100))&access_token=" + sessionUserAccessToken,
+            uri: process.env.FB_GRAPH_API +  +targetUserId + "?fields=context.fields(all_mutual_friends.limit(100))&access_token=" + sessionUserAccessToken + "&appsecret_proof=" + proof,
             headers: {
                 'User-Agent': 'Request-Promise',
             },
@@ -59,6 +77,7 @@ let getMutualFriends = (targetUserId, sessionUserAccessToken)=>{
         requestPromise(options)
             .then(function (result) {
                 console.log("mutual friends list received");
+                console.log(JSON.stringify(result));
                 if (result.context.all_mutual_friends){
                     resolve(result.context.all_mutual_friends.data);
                 }
