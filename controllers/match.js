@@ -237,11 +237,43 @@ module.exports.findMatchForUser = function findMatchForUser (req, res) {
 
             console.log("mutual friend array: " + JSON.stringify(results));
             // filter the results of the basic match to contain only elements in the friends array or with more than 0 mutual friends
-            let filteredArr = potentialMatches.filter((element, index, array)=>{
 
-                return (arrOfFriendsIds.includes(element._id) || results[index].length >0);
 
-            });
+
+            // let filteredArr = potentialMatches.filter((element, index, array)=>{
+            //
+            //     return (arrOfFriendsIds.includes(element._id) || results[index].length >0);
+            //
+            // });
+
+            // for each element - add the friends degree
+            // if its a 2nd degree friend - add data about the mutual friends
+            let filteredArr = potentialMatches.map((element, index)=>{
+                let elem;
+                if (arrOfFriendsIds.includes(element._id)){
+                    // first degree
+                     elem = Object.assign({}, element, {
+                                friendDegree: 1
+                            });
+                }
+                else if (results[index].length > 0){
+                    // second degree friend - add data about mutual friends
+                    elem = Object.assign({}, element, {
+                        friendDegree: 2,
+                        commonFriends: results[index]
+                    });
+                }
+                else{
+                    elem = element
+                }
+
+                return elem;
+            }).filter((element, index, array)=>{
+
+                    // return only first or second degree friends
+                    return element.friendDegree;
+                });
+
 
 
             console.log(filteredArr);
@@ -254,6 +286,7 @@ module.exports.findMatchForUser = function findMatchForUser (req, res) {
 
     }).catch((err)=>{
         console.log("error finding match for user " + err);
+
         res.status(500).send(err);
     });
 };
