@@ -246,26 +246,52 @@ module.exports.findMatchForUser = function findMatchForUser (req, res) {
             //
             // });
 
-            // for each element - add the friends degree
-            // if its a 2nd degree friend - add data about the mutual friends
+            // for each element - add the friends degree and data about the mutual friends
             let filteredArr = potentialMatches.map((element, index)=>{
                 let elem;
+
+                // add mutual friends data
+                if (results[index].length > 0){
+                    // add data about mutual friends
+                    elem = Object.assign({}, element, {
+                        commonFriends: results[index],
+                    });
+                }
                 if (arrOfFriendsIds.includes(element._id)){
                     // first degree
-                     elem = Object.assign({}, element, {
-                                friendDegree: 1
-                            });
+                    elem = Object.assign({}, elem, {
+                        friendDegree: 1
+                    });
                 }
                 else if (results[index].length > 0){
-                    // second degree friend - add data about mutual friends
-                    elem = Object.assign({}, element, {
-                        friendDegree: 2,
-                        commonFriends: results[index]
+                    // 2nd degree
+                    elem = Object.assign({}, elem, {
+                        friendDegree: 2
                     });
                 }
                 else{
-                    elem = element
+                    elem = element;
                 }
+
+
+
+                //
+                // if (arrOfFriendsIds.includes(element._id)){
+                //     // first degree
+                //      elem = Object.assign({}, element, {
+                //                 friendDegree: 1
+                //             });
+                // }
+                // else if (results[index].length > 0){
+                //     // second degree friend - add data about mutual friends
+                //     elem = Object.assign({}, element, {
+                //         friendDegree: 2,
+                //         commonFriends: results[index]
+                //     });
+                // }
+                // else{
+                //     elem = element
+                // }
 
                 return elem;
             }).filter((element, index, array)=>{
