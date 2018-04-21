@@ -2,6 +2,7 @@
 let requestPromise = require ('request-promise');
 const MongoClient = require('mongodb').MongoClient;
 let crypto = require('crypto');
+let ErrorHandler = require('../utils/ErrorHandler')
 /**
  *  get the list of friends of a given user
 
@@ -187,6 +188,127 @@ let getBasicMatchByPref = (preferences)=>{
     });
 }
 
+
+/**
+ * hide personal info according to the privacy preference of the requesting user, and its connection status with each user
+ */
+let filterPersonalInfoVisibility=()=> {
+
+
+
+}
+
+
+
+module.exports.updateConnectionStatus = (req, res) =>{
+    // db url
+    const url = process.env.DB_URL;
+
+    // Database Name
+    const dbName = process.env.DB_NAME;
+
+
+    MongoClient.connect(url, function(err, client) {
+        if (err){
+
+            let error = ErrorHandler.createError(err, "matchService", ErrorHandler.noDBConnection, "error updating connection status - error connecting to db");
+
+            res.status(500).send(error);
+        }
+        console.log("Connected to db");
+
+        const db = client.db(dbName);
+        const collection = db.collection(process.env.USER_CONNECTION_COLLECTION);
+        let id = req.swagger.params.userID.value;
+        let targetId =  req.swagger.params.fb_target_id.value;
+        let status = req.swagger.params.connectionStatus.value.status;
+
+        collection.updateOne({
+            "requestUser":id, "targetUser": targetId
+        }, {
+            $set: {"status":status}
+        }, (err, result)=>{
+
+            if (err){
+                let error = ErrorHandler.createError(err, "matchService", ErrorHandler.noCollectionUpdate, "error updating connection status - db error while updating collection");
+
+                res.status(500).send(err);
+            }
+            else{
+
+                if (result.matchedCount == 0){
+
+                    let error = ErrorHandler.createError("", "matchService", ErrorHandler.noConnectionFound, "error updating connection status - connection not found");
+
+                    // no user document was found - error
+                    res.status(500).send(error);
+                }
+                else{
+                    res.status(200).send("connection status updated: " + status);
+                }
+            }
+        });
+    });
+}
+
+
+/**
+ * create a connection request from / to a specific use
+ * @param req
+ * @param res
+ */
+module.exports.connectWithUser = function (req, res){
+
+    // get source id from request
+    const sourceId = req.swagger.params.fb_user_id.value;
+
+    // get target id from request
+    const targetId = req.swagger.params.fb_target_id.value;
+
+    // send request to db to create a connection between the user and the target user
+
+    // users db
+    const url = process.env.DB_URL;
+
+    // Database Name
+    const dbName = process.env.DB_NAME;
+
+    MongoClient.connect(url, function(err, client) {
+
+        if (err){
+
+            let error = ErrorHandler.createError(err, "matchService", ErrorHandler.noDBConnection, "error creating connection - error connecting to db");
+
+            res.status(500).send(error);
+        }
+
+        console.log("Connected to db");
+
+        const db = client.db(dbName);
+        const collection = db.collection(process.env.USER_CONNECTION_COLLECTION);
+
+        // createa a new pending requst between the two usres
+        const connection = {
+            "requestUser": sourceId,
+            "targetUser": targetId,
+            "status": "pending"
+        };
+
+        collection.insertOne(connection, ((err, result)=>{
+            if (err){
+
+                console.log("error creating connection  - db error while updating collection")
+                let error = ErrorHandler.createError(err, "matchService", ErrorHandler.noCollectionUpdate, "error creating connection  - db error while updating collection");
+
+                res.status(500).send(error);
+            }
+            else{
+                res.status(200).send("connection created successfully");
+                console.log("success creating connection");
+            }
+        }));
+    });
+};
 
 
 

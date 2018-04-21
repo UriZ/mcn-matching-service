@@ -42,6 +42,83 @@
           }
         }
       }
+    },
+    "/connection": {
+      "post": {
+        "x-swagger-router-controller": "match",
+        "operationId": "connectWithUser",
+        "tags": ["/connect"],
+        "description": "connect with a specific user",
+        "parameters": [
+          {
+            "name": "fb_user_id",
+            "in": "query",
+            "description": "The FB user id derived from FB access token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "fb_target_id",
+            "in": "query",
+            "description": "The FB user id of the target user",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Invalid request.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "200": {
+            "description": "Successful request."
+          }
+        }
+      },
+      "put": {
+        "x-swagger-router-controller": "match",
+        "operationId": "updateConnectionStatus",
+        "tags": ["/connect"],
+        "description": "accept/reject connection request",
+        "parameters": [
+          {
+            "name": "userID",
+            "in": "query",
+            "description": "The FB user id of the user making the action",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "fb_target_id",
+            "in": "query",
+            "description": "The FB user id of the target user",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "connectionStatus",
+            "in": "body",
+            "description": "status to update for the connection - reject or accept",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/conenctionStatus"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Invalid request.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "200": {
+            "description": "Successful request."
+          }
+        }
+      }
     }
   },
 
@@ -55,6 +132,20 @@
         }
       },
       "required": ["errorMessage"]
+    },
+
+    "conenctionStatus":{
+      "type" : "object",
+      "required": [
+        "status"
+      ],
+      "properties":{
+        "status":{
+          "type":"string",
+          "enum": ["accepted", "rejected", "pending"]
+        }
+      }
+
     }
   }
 }
