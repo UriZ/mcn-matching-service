@@ -219,7 +219,7 @@ module.exports.updateConnectionStatus = (req, res) =>{
 
         const db = client.db(dbName);
         const collection = db.collection(process.env.USER_CONNECTION_COLLECTION);
-        let id = req.swagger.params.userID.value;
+        let id = req.swagger.params.fb_user_id.value;
         let targetId =  req.swagger.params.fb_target_id.value;
         let status = req.swagger.params.connectionStatus.value.status;
 

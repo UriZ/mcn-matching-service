@@ -84,7 +84,7 @@
         "description": "accept/reject connection request",
         "parameters": [
           {
-            "name": "userID",
+            "name": "fb_user_id",
             "in": "query",
             "description": "The FB user id of the user making the action",
             "required": true,
