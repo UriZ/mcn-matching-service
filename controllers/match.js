@@ -121,7 +121,6 @@ let getMutualFriendsNoFBAPI = (targetUserId, sessionUserAccessToken)=>{
                         "amount": "1000$",
                         "publicProfile": true
                     },
-                    "friendDegree":"1"
                 }
             ];
 
