@@ -98,7 +98,7 @@ let getMutualFriends = (targetUserId, sessionUserAccessToken)=>{
 
 
 /**
- * get mutual friends without using the broken mutual friends api
+ * dummy impl of get mutual friends - just to keep the flow intact
  * @param targetUserId
  * @param sessionUserAccessToken
  */
@@ -140,25 +140,7 @@ let getMutualFriendsNoFBAPI = (targetUserId, sessionUserAccessToken)=>{
     });
 }
 
-/**
- *
- *
- *
- *   {
-                    "_id": "105055957013966",
-                    "userName": "santanta santana",
-                    "email": {
-                        "value": ""
-                    },
-                    "profilePic": "https://graph.facebook.com/v2.6/105055957013966/picture?type=large",
-                    "preferences": {
-                        "currency": "bitcoin",
-                        "operation": "sell",
-                        "amount": "1000$",
-                        "publicProfile": true
-                    },
-                }
- */
+
 /**
  * get potential matches from db according to user pref
  * @param userId
