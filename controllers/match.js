@@ -108,7 +108,29 @@ let getMutualFriendsNoFBAPI = (targetUserId, sessionUserAccessToken)=>{
     return new Promise((resolve,reject)=>{
         let res =
             [
+
                 {
+                    "picture":{
+                        "data":{
+                            "url":"https://graph.facebook.com/v2.6/105055957013966/picture?type=large"
+                        }
+                    }
+                }
+
+
+
+
+            ];
+
+        resolve(res);
+    });
+}
+
+/**
+ *
+ *
+ *
+ *   {
                     "_id": "105055957013966",
                     "userName": "santanta santana",
                     "email": {
@@ -122,13 +144,7 @@ let getMutualFriendsNoFBAPI = (targetUserId, sessionUserAccessToken)=>{
                         "publicProfile": true
                     },
                 }
-            ];
-
-        resolve(res);
-    });
-}
-
-
+ */
 /**
  * get potential matches from db according to user pref
  * @param userId
