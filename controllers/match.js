@@ -98,6 +98,18 @@ let getMutualFriends = (targetUserId, sessionUserAccessToken)=>{
 
 
 /**
+ * get mutual friends without using the broken mutual friends api
+ * @param targetUserId
+ * @param sessionUserAccessToken
+ */
+let getMutualFriendsNoFBAPI = (targetUserId, sessionUserAccessToken)=>{
+
+
+
+}
+
+
+/**
  * get potential matches from db according to user pref
  * @param userId
  * @returns {Promise<any>}
@@ -328,92 +340,92 @@ module.exports.findMatchForUser = function findMatchForUser (req, res) {
     const token  = req.swagger.params.fbToken.value;
 
 
-    // findPotentialMatchesForUser(id).then((data)=>{
-    //    res.send(data);
-    // });
-
-    // get fb friends and basic match from db
-    Promise.all([findPotentialMatchesForUser(id),getFBFriends(id, token)]).then((results)=>{
-
-        let potentialMatches = results[0];
-
-        // create an array of friends ids
-        let arrOfFriendsIds = results[1].data.map((elem)=>{
-            return(elem.id);
-        });
-
-        // create an array of mutual friends promises
-        let mutualFriendsCalls = [];
-
-        // run on the potential matches array, and for each one find a promise for the mutual friends with the current user
-        potentialMatches.forEach((elem)=>{
-            if (elem._id !="10159941643255344" && elem._id != "10155136573832470" && elem._id != id){
-                // push a promise into the array. filter out the current session user, and real users - this is temporary until we
-                // get the approval from FB
-                mutualFriendsCalls.push(getMutualFriends(elem._id,token));
-            }
-            else{
-                // add a fake promise resolving an empty object
-                mutualFriendsCalls.push(new Promise((resolve, reject)=>{
-                    resolve([]);
-                }));
-            }
-        });
-
-        // get all mutual friends arrays
-        Promise.all(mutualFriendsCalls).then((results)=>{
-
-            console.log("mutual friends array: " + JSON.stringify(results));
-            // filter the results of the basic match to contain only elements in the friends array (1st degree) or with more than 0 mutual friends (2nd degree)
-
-            // for each element - add the friends degree and data about the mutual friends
-            let filteredArr = potentialMatches.map((element, index)=>{
-                let elem;
-
-                // add mutual friends data
-                if (results[index].length > 0){
-                    // add data about mutual friends
-                    elem = Object.assign({}, element, {
-                        commonFriends: results[index],
-                    });
-                }
-                if (arrOfFriendsIds.includes(element._id)){
-                    // first degree
-                    elem = Object.assign({}, elem, {
-                        friendDegree: 1
-                    });
-                }
-                else if (results[index].length > 0){
-                    // 2nd degree
-                    elem = Object.assign({}, elem, {
-                        friendDegree: 2
-                    });
-                }
-                else{
-                    elem = element;
-                }
-
-                return elem;
-            }).filter((element, index, array)=>{
-
-                    // return only first or second degree friends
-                    // this should be a preference (filter according to friends or not - currently hard coded)
-                    return element.friendDegree;
-                });
-
-            console.log(filteredArr);
-            res.status(200).send(filteredArr);
-        }).catch((err)=>{
-            console.log("error while getting mutual friends " + err);
-            res.status(500).send(err);
-
-        });
-
-    }).catch((err)=>{
-        console.log("error finding match for user " + err);
-
-        res.status(500).send(err);
+    findPotentialMatchesForUser(id).then((data)=>{
+       res.send(data);
     });
+
+    // // get fb friends and basic match from db
+    // Promise.all([findPotentialMatchesForUser(id),getFBFriends(id, token)]).then((results)=>{
+    //
+    //     let potentialMatches = results[0];
+    //
+    //     // create an array of friends ids
+    //     let arrOfFriendsIds = results[1].data.map((elem)=>{
+    //         return(elem.id);
+    //     });
+    //
+    //     // create an array of mutual friends promises
+    //     let mutualFriendsCalls = [];
+    //
+    //     // run on the potential matches array, and for each one find a promise for the mutual friends with the current user
+    //     potentialMatches.forEach((elem)=>{
+    //         if (elem._id !="10159941643255344" && elem._id != "10155136573832470" && elem._id != id){
+    //             // push a promise into the array. filter out the current session user, and real users - this is temporary until we
+    //             // get the approval from FB
+    //             mutualFriendsCalls.push(getMutualFriends(elem._id,token));
+    //         }
+    //         else{
+    //             // add a fake promise resolving an empty object
+    //             mutualFriendsCalls.push(new Promise((resolve, reject)=>{
+    //                 resolve([]);
+    //             }));
+    //         }
+    //     });
+    //
+    //     // get all mutual friends arrays
+    //     Promise.all(mutualFriendsCalls).then((results)=>{
+    //
+    //         console.log("mutual friends array: " + JSON.stringify(results));
+    //         // filter the results of the basic match to contain only elements in the friends array (1st degree) or with more than 0 mutual friends (2nd degree)
+    //
+    //         // for each element - add the friends degree and data about the mutual friends
+    //         let filteredArr = potentialMatches.map((element, index)=>{
+    //             let elem;
+    //
+    //             // add mutual friends data
+    //             if (results[index].length > 0){
+    //                 // add data about mutual friends
+    //                 elem = Object.assign({}, element, {
+    //                     commonFriends: results[index],
+    //                 });
+    //             }
+    //             if (arrOfFriendsIds.includes(element._id)){
+    //                 // first degree
+    //                 elem = Object.assign({}, elem, {
+    //                     friendDegree: 1
+    //                 });
+    //             }
+    //             else if (results[index].length > 0){
+    //                 // 2nd degree
+    //                 elem = Object.assign({}, elem, {
+    //                     friendDegree: 2
+    //                 });
+    //             }
+    //             else{
+    //                 elem = element;
+    //             }
+    //
+    //             return elem;
+    //         }).filter((element, index, array)=>{
+    //
+    //                 // return only first or second degree friends
+    //                 // this should be a preference (filter according to friends or not - currently hard coded)
+    //                 return element.friendDegree;
+    //             });
+    //
+    //         console.log(filteredArr);
+    //         res.status(200).send(filteredArr);
+    //     }).catch((err)=>{
+    //         console.log("error while getting mutual friends " + err);
+    //         res.status(500).send(err);
+    //
+    //     });
+    //
+    // }).catch((err)=>{
+    //     console.log("error finding match for user " + err);
+    //
+    //     res.status(500).send(err);
+    // });
 };
 
 
