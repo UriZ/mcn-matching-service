@@ -115,6 +115,20 @@ let getMutualFriendsNoFBAPI = (targetUserId, sessionUserAccessToken)=>{
                             "url":"https://graph.facebook.com/v2.6/105055957013966/picture?type=large"
                         }
                     }
+                },
+                {
+                    "picture":{
+                        "data":{
+                            "url":"https://graph.facebook.com/v2.6/108110413350624/picture?type=large"
+                        }
+                    }
+                },
+                {
+                    "picture":{
+                        "data":{
+                            "url":"https://graph.facebook.com/v2.6/111781506339821/picture?type=large"
+                        }
+                    }
                 }
 
 
