@@ -1,4 +1,7 @@
-
+/**
+ * error handler utils. Should be a common package
+ * @type {string}
+ */
 const NO_CONNECTION_FOUND = "NO_CONNECTION_FOUND";
 const NO_DB_CONNECTION = "NO_DB_CONNECTION";
 const NO_COLLECTION_UPDATE = "NO_COLLECTION_UPDATE";
