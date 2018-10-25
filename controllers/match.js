@@ -19,7 +19,7 @@ let getFBFriends = (userId, fbAccessToken)=>{
             headers: {
                 'User-Agent': 'Request-Promise',
             },
-            json: true // Automatically parses the JSON string in the response
+            json: true
         };
 
         requestPromise(options)
@@ -107,14 +107,13 @@ let findPotentialMatchesForUser = (userId) => {
     return new Promise((resolve, reject) => {
 
         // get preferences of user
-        // options for user service call
         let options = {
             method: 'get',
             uri: process.env.USER_SERVICE_URL + "/" + userId + "/preferences",
             headers: {
                 'User-Agent': 'Request-Promise'
             },
-            json: true // Automatically parses the JSON string in the response
+            json: true
         };
 
         requestPromise(options)
@@ -122,23 +121,26 @@ let findPotentialMatchesForUser = (userId) => {
                 console.log("success getting user preferences");
                 console.log(preferences);
 
-                 return getBasicMatchByPref(buildPrefIndex(preferences));
+                // get matching users from db by preferences
+                return getBasicMatchByPref(buildPrefIndex(preferences));
             })
             .then((users) => {
-                console.log("found match for user " + userId + ": " + JSON.stringify(users) );
+                console.log("found match for user by preferences" + userId + ": " + JSON.stringify(users) );
                 resolve(users);
-
             })
             .catch(function (err) {
-                console.log("error getting users by preferences " + err);
+                console.log("error finding match for user by preferences " + err);
                 reject(err);
             });
     });
 }
 
+/**
+ *  build an index on the user preferences
+ * @param preferences
+ */
 let buildPrefIndex = (preferences)=>{
 
-    // build an index using preferences
     let index = {};
 
     // look for the symmetrical operation
@@ -180,7 +182,6 @@ let getBasicMatchByPref = (preferences)=>{
                     reject(err);
                 }
                 else{
-                    console.log("matched items " + items);
                     resolve(items);
                 }
             });
