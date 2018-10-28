@@ -371,11 +371,6 @@ module.exports.findMatchForUser = function findMatchForUser (req, res) {
     const id = req.swagger.params.fb_user_id.value;
     const token  = req.swagger.params.fbToken.value;
 
-
-    // findPotentialMatchesForUser(id).then((data)=>{
-    //    res.send(data);
-    // });
-
     // get fb friends and basic match from db
     Promise.all([findPotentialMatchesForUser(id),getFBFriends(id, token)]).then((results)=>{
 
